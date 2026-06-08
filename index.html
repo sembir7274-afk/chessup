@@ -43,12 +43,199 @@
       <div class="logo-sub">מאסטר השחמט שלך</div>
     </div>
   </div>
-  <div class="streak-pill">
-    <span class="streak-icon">🔥</span>
-    <span id="streakCount">0</span>
-    <span class="streak-label">שלבים</span>
+  <div class="topbar-right">
+    <button id="openInstallBtn" class="install-chip" title="התקן את האפליקציה">
+      <span class="install-icon">📲</span>
+      <span class="install-label">התקן</span>
+    </button>
+    <div class="streak-pill">
+      <span class="streak-icon">🔥</span>
+      <span id="streakCount">0</span>
+      <span class="streak-label">שלבים</span>
+    </div>
   </div>
 </header>
+
+<!-- ============ INSTALL TUTORIAL MODAL ============ -->
+<div id="installModal" class="install-modal">
+  <div class="install-card">
+    <button class="install-close" id="closeInstallBtn" aria-label="סגור">✕</button>
+
+    <div class="install-hero">
+      <div class="install-hero-icon">
+        <div class="install-icon-bg"></div>
+        <span>♞</span>
+      </div>
+      <h2>התקן את ChessUp</h2>
+      <p class="install-sub">משחק בכל מקום, גם בלי אינטרנט!</p>
+    </div>
+
+    <div class="install-tabs">
+      <button class="install-tab" data-platform="ios">
+        <span class="tab-icon">🍎</span>
+        iPhone
+      </button>
+      <button class="install-tab" data-platform="android">
+        <span class="tab-icon">🤖</span>
+        Android
+      </button>
+      <button class="install-tab" data-platform="desktop">
+        <span class="tab-icon">💻</span>
+        מחשב
+      </button>
+    </div>
+
+    <!-- ===== iOS Tutorial ===== -->
+    <div class="install-content" data-platform="ios">
+      <div class="install-stage">
+        <div class="phone-mockup ios">
+          <div class="phone-notch"></div>
+          <div class="phone-screen">
+            <div class="phone-statusbar">9:41</div>
+            <div class="phone-url-bar">
+              <span class="url-lock">🔒</span>
+              <span class="url-text">chessup.app</span>
+            </div>
+            <div class="phone-body">
+              <div class="phone-app-preview">
+                <div class="preview-board"></div>
+              </div>
+            </div>
+            <div class="phone-toolbar">
+              <span class="phone-tool">‹</span>
+              <span class="phone-tool">›</span>
+              <span class="phone-tool share-tool" id="iosShare">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+                  <path d="M12 2 L7 7 L8.5 8.5 L11 6 V14 H13 V6 L15.5 8.5 L17 7 Z"/>
+                  <path d="M5 10 V20 H19 V10 H16 V12 H17 V18 H7 V12 H8 V10 Z"/>
+                </svg>
+              </span>
+              <span class="phone-tool">📑</span>
+              <span class="phone-tool">📚</span>
+            </div>
+            <div class="phone-home-indicator"></div>
+          </div>
+          <div class="arrow-pointer" id="arrowIos">
+            <div class="arrow-line"></div>
+            <div class="arrow-head">👆</div>
+          </div>
+        </div>
+        <ol class="install-steps">
+          <li class="step-item">
+            <span class="step-num">1</span>
+            <span class="step-text">פתח את האתר ב-<strong>Safari</strong> (לא Chrome!)</span>
+          </li>
+          <li class="step-item">
+            <span class="step-num">2</span>
+            <span class="step-text">לחץ על כפתור <strong>השיתוף</strong> (ריבוע עם חץ למעלה)</span>
+          </li>
+          <li class="step-item">
+            <span class="step-num">3</span>
+            <span class="step-text">גלול ובחר <strong>"Add to Home Screen"</strong> (הוסף למסך הבית)</span>
+          </li>
+          <li class="step-item">
+            <span class="step-num">4</span>
+            <span class="step-text">לחץ <strong>"Add"</strong> בפינה הימנית העליונה ✨</span>
+          </li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- ===== Android Tutorial ===== -->
+    <div class="install-content" data-platform="android">
+      <div class="install-stage">
+        <div class="phone-mockup android">
+          <div class="phone-screen">
+            <div class="phone-statusbar android-status">
+              <span>9:41</span>
+              <span class="status-icons">📶 📡 🔋</span>
+            </div>
+            <div class="phone-url-bar android-url">
+              <span class="url-lock">🔒</span>
+              <span class="url-text">chessup.app</span>
+              <span class="android-menu" id="androidMenu">⋮</span>
+            </div>
+            <div class="phone-body">
+              <div class="phone-app-preview">
+                <div class="preview-board"></div>
+              </div>
+              <div class="android-banner" id="androidBanner">
+                <span>📲</span>
+                <div>
+                  <strong>הוסף את ChessUp למסך הבית</strong>
+                  <small>גישה מהירה מהאייקון</small>
+                </div>
+                <button class="banner-install">התקן</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <ol class="install-steps">
+          <li class="step-item">
+            <span class="step-num">1</span>
+            <span class="step-text">פתח את האתר ב-<strong>Chrome</strong></span>
+          </li>
+          <li class="step-item">
+            <span class="step-num">2</span>
+            <span class="step-text">תופיע באנר <strong>"הוסף למסך הבית"</strong> בתחתית</span>
+          </li>
+          <li class="step-item">
+            <span class="step-num">3</span>
+            <span class="step-text">או לחץ על <strong>3 הנקודות</strong> ⋮ למעלה ובחר "התקן אפליקציה"</span>
+          </li>
+          <li class="step-item">
+            <span class="step-num">4</span>
+            <span class="step-text">אשר את ההתקנה - יופיע אייקון בדף הבית 🎉</span>
+          </li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- ===== Desktop Tutorial ===== -->
+    <div class="install-content" data-platform="desktop">
+      <div class="install-stage">
+        <div class="desktop-mockup">
+          <div class="desktop-bar">
+            <span class="dot red"></span>
+            <span class="dot yellow"></span>
+            <span class="dot green"></span>
+            <div class="desktop-url">
+              <span>🔒 chessup.app</span>
+              <span class="install-cta" id="desktopInstall">⊕</span>
+            </div>
+          </div>
+          <div class="desktop-screen">
+            <div class="preview-board large"></div>
+          </div>
+        </div>
+        <ol class="install-steps">
+          <li class="step-item">
+            <span class="step-num">1</span>
+            <span class="step-text">פתח את האתר ב-<strong>Chrome</strong> או <strong>Edge</strong></span>
+          </li>
+          <li class="step-item">
+            <span class="step-num">2</span>
+            <span class="step-text">חפש את אייקון ההתקנה <strong>⊕</strong> בסוף שורת הכתובת</span>
+          </li>
+          <li class="step-item">
+            <span class="step-num">3</span>
+            <span class="step-text">לחץ עליו ובחר <strong>"התקן"</strong></span>
+          </li>
+          <li class="step-item">
+            <span class="step-num">4</span>
+            <span class="step-text">האפליקציה תיפתח בחלון משלה - גם בתפריט ההתחלה! 💻</span>
+          </li>
+        </ol>
+      </div>
+    </div>
+
+    <button class="btn btn-primary btn-big install-action" id="oneClickInstall" hidden>
+      <span>⚡</span> התקן עכשיו בלחיצה
+    </button>
+
+    <p class="install-footer">פועל גם בלי אינטרנט • לא תופס מקום • מהיר יותר 🚀</p>
+  </div>
+</div>
 
 <!-- ============ MAP SCREEN ============ -->
 <section id="mapScreen" class="screen active">

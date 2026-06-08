@@ -606,5 +606,76 @@ document.getElementById('unitContinueBtn').addEventListener('click', () => {
   }
 });
 
+// ====== INSTALL TUTORIAL ======
+let deferredInstallPrompt = null;
+const installModal = document.getElementById('installModal');
+const installTabs = document.querySelectorAll('.install-tab');
+const installContents = document.querySelectorAll('.install-content');
+
+function detectPlatform() {
+  const ua = navigator.userAgent || '';
+  if (/iPad|iPhone|iPod/.test(ua) && !window.MSStream) return 'ios';
+  if (/Android/.test(ua)) return 'android';
+  return 'desktop';
+}
+
+function setInstallTab(platform) {
+  installTabs.forEach(t => t.classList.toggle('active', t.dataset.platform === platform));
+  installContents.forEach(c => c.classList.toggle('active', c.dataset.platform === platform));
+}
+
+installTabs.forEach(tab => {
+  tab.addEventListener('click', () => setInstallTab(tab.dataset.platform));
+});
+
+document.getElementById('openInstallBtn').addEventListener('click', () => {
+  setInstallTab(detectPlatform());
+  installModal.classList.add('show');
+  // If browser supports direct install prompt, show the one-click button
+  const oneClick = document.getElementById('oneClickInstall');
+  if (deferredInstallPrompt) {
+    oneClick.hidden = false;
+  } else {
+    oneClick.hidden = true;
+  }
+});
+
+document.getElementById('closeInstallBtn').addEventListener('click', () => {
+  installModal.classList.remove('show');
+});
+
+installModal.addEventListener('click', (e) => {
+  if (e.target === installModal) installModal.classList.remove('show');
+});
+
+// PWA install prompt (Chrome/Edge/Android)
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+  // Add a subtle pulse on the install chip
+  const chip = document.getElementById('openInstallBtn');
+  if (chip) chip.classList.add('pulse-now');
+});
+
+document.getElementById('oneClickInstall').addEventListener('click', async () => {
+  if (!deferredInstallPrompt) return;
+  deferredInstallPrompt.prompt();
+  const result = await deferredInstallPrompt.userChoice;
+  if (result.outcome === 'accepted') {
+    installModal.classList.remove('show');
+    setTimeout(() => alert('🎉 האפליקציה הותקנה בהצלחה!'), 300);
+  }
+  deferredInstallPrompt = null;
+  document.getElementById('oneClickInstall').hidden = true;
+});
+
+// Hide install button if already installed (PWA mode)
+if (window.matchMedia('(display-mode: standalone)').matches ||
+    window.navigator.standalone === true) {
+  const btn = document.getElementById('openInstallBtn');
+  if (btn) btn.style.display = 'none';
+}
+
 // ===== Init =====
 renderMap();
+setInstallTab(detectPlatform());
