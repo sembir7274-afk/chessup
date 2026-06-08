@@ -16,14 +16,45 @@
 <link rel="stylesheet" href="styles.css">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon.png">
-<script src="https://accounts.google.com/gsi/client" async defer></script>
 
     <script>
+      // ===== Service Worker registration + AUTO-UPDATE =====
       if ('serviceWorker' in navigator) {
+        let _refreshing = false;
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+          if (_refreshing) return;
+          _refreshing = true;
+          window.location.reload();
+        });
+        navigator.serviceWorker.addEventListener('message', (e) => {
+          if (e.data && e.data.type === 'SW_UPDATED') {
+            const b = document.getElementById('updateBanner');
+            if (b) b.classList.add('show');
+            // auto-reload after 1s so user sees "updated" flash
+            setTimeout(() => window.location.reload(), 1200);
+          }
+        });
         window.addEventListener('load', () => {
-          navigator.serviceWorker.register('sw.js')
-            .then(reg => console.log('האפליקציה מוכנה להתקנה!', reg))
-            .catch(err => console.log('שגיאה ברישום האפליקציה:', err));
+          navigator.serviceWorker.register('sw.js').then((reg) => {
+            // Force check for updates immediately and every 30 seconds
+            reg.update();
+            setInterval(() => reg.update(), 30000);
+            // Also check whenever the app regains focus
+            window.addEventListener('focus', () => reg.update());
+            document.addEventListener('visibilitychange', () => {
+              if (!document.hidden) reg.update();
+            });
+            // When a new worker is installed, activate it immediately
+            reg.addEventListener('updatefound', () => {
+              const newWorker = reg.installing;
+              if (!newWorker) return;
+              newWorker.addEventListener('statechange', () => {
+                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                  newWorker.postMessage('SKIP_WAITING');
+                }
+              });
+            });
+          });
         });
       }
     </script>
@@ -34,6 +65,33 @@
   <div class="blob blob-1"></div>
   <div class="blob blob-2"></div>
   <div class="blob blob-3"></div>
+</div>
+
+<!-- ===== Update banner ===== -->
+<div id="updateBanner" class="update-banner">
+  <span class="update-spinner"></span>
+  <span>גרסה חדשה זמינה — מתעדכן...</span>
+</div>
+
+<!-- ===== Login Modal ===== -->
+<div id="loginModal" class="login-modal">
+  <div class="login-card">
+    <button class="login-close" id="loginClose" aria-label="סגור">✕</button>
+    <div class="login-hero-icon">
+      <div class="login-icon-bg"></div>
+      <span>♞</span>
+    </div>
+    <h2>היכנס ל-ChessUp</h2>
+    <p class="login-sub">בחר שם וחתימה - ההתקדמות תישמר לפי החשבון</p>
+
+    <label class="login-label">השם שלך</label>
+    <input type="text" id="loginName" class="login-input" placeholder="לדוגמה: דני" maxlength="20" autocomplete="off">
+
+    <label class="login-label">בחר אווטאר</label>
+    <div class="avatar-grid" id="avatarGrid"></div>
+
+    <button class="btn btn-primary btn-big login-go" id="loginGo">⚡ כניסה</button>
+  </div>
 </div>
 
 <header class="topbar">
@@ -56,7 +114,7 @@
         <path fill="#FBBC05" d="M10.4 28.8c-.5-1.5-.8-3.1-.8-4.8s.3-3.3.8-4.8l-7.8-6C.9 16.2 0 20 0 24s.9 7.8 2.6 10.8l7.8-6z"/>
         <path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.6-5.9c-2.1 1.4-4.8 2.2-8.3 2.2-6.3 0-11.7-4-13.6-9.7l-7.8 6C6.5 42.6 14.6 48 24 48z"/>
       </svg>
-      <span id="googleBtnLabel">התחבר</span>
+      <span id="googleBtnLabel">כניסה</span>
     </button>
     <div id="profileChip" class="profile-chip" hidden>
       <img id="profilePic" alt="" referrerpolicy="no-referrer">

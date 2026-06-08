@@ -681,15 +681,9 @@ window.addEventListener('appinstalled', () => {
 });
 
 // ============================================================
-// 🔐 GOOGLE SIGN-IN
+// 🔐 LOGIN (simple, no external setup)
 // ============================================================
-// To enable Google Sign-In:
-// 1. Go to https://console.cloud.google.com/apis/credentials
-// 2. Create OAuth 2.0 Client ID (type: Web application)
-// 3. Add your domain to "Authorized JavaScript origins"
-//    (e.g. https://sembir7274-afk.github.io and https://f7058f2e523e3f.lhr.life)
-// 4. Paste the client ID here:
-const GOOGLE_CLIENT_ID = '__PASTE_YOUR_GOOGLE_CLIENT_ID__.apps.googleusercontent.com';
+const AVATARS = ['♞','♚','♛','♜','♝','♟','🦄','🚀','🎯','🔥','⚡','🏆'];
 
 const googleBtn = document.getElementById('googleBtn');
 const profileChip = document.getElementById('profileChip');
@@ -697,21 +691,43 @@ const profilePic = document.getElementById('profilePic');
 const profileName = document.getElementById('profileName');
 const profileMenu = document.getElementById('profileMenu');
 
-function decodeJWT(token) {
-  try {
-    const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
-    const json = decodeURIComponent(atob(base64).split('').map(c =>
-      '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
-    return JSON.parse(json);
-  } catch (e) { return null; }
+const loginModal = document.getElementById('loginModal');
+const loginNameInput = document.getElementById('loginName');
+const avatarGrid = document.getElementById('avatarGrid');
+const loginGo = document.getElementById('loginGo');
+const loginClose = document.getElementById('loginClose');
+
+let pickedAvatar = AVATARS[0];
+
+function renderAvatarGrid() {
+  avatarGrid.innerHTML = '';
+  AVATARS.forEach((emoji, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'avatar-option' + (emoji === pickedAvatar ? ' selected' : '');
+    btn.textContent = emoji;
+    btn.type = 'button';
+    btn.addEventListener('click', () => {
+      pickedAvatar = emoji;
+      renderAvatarGrid();
+    });
+    avatarGrid.appendChild(btn);
+  });
 }
 
 function applyUser(user) {
   currentUser = user;
   if (user) {
     localStorage.setItem('chessupUser', JSON.stringify(user));
-    profilePic.src = user.picture || '';
-    profileName.textContent = (user.given_name || user.name || '').split(' ')[0];
+    // Update profile chip — use emoji avatar
+    profilePic.style.display = 'none';
+    let av = profileChip.querySelector('.avatar-emoji');
+    if (!av) {
+      av = document.createElement('span');
+      av.className = 'avatar-emoji';
+      profileChip.insertBefore(av, profileChip.firstChild);
+    }
+    av.textContent = user.avatar || '♞';
+    profileName.textContent = user.name;
     profileChip.hidden = false;
     googleBtn.hidden = true;
   } else {
@@ -719,61 +735,47 @@ function applyUser(user) {
     profileChip.hidden = true;
     googleBtn.hidden = false;
   }
-  // Reload progress for this user (or guest)
   progress = loadProgress();
   renderMap();
 }
 
-function handleGoogleCredential(response) {
-  const payload = decodeJWT(response.credential);
-  if (!payload) return;
-  applyUser({
-    sub: payload.sub,
-    name: payload.name,
-    given_name: payload.given_name,
-    email: payload.email,
-    picture: payload.picture
-  });
+function openLogin() {
+  pickedAvatar = AVATARS[0];
+  loginNameInput.value = '';
+  renderAvatarGrid();
+  loginModal.classList.add('show');
+  setTimeout(() => loginNameInput.focus(), 200);
 }
 
-function initGoogleSignIn() {
-  if (!window.google?.accounts?.id) return;
-  if (GOOGLE_CLIENT_ID.startsWith('__PASTE')) {
-    // Not configured yet — show prompt-based fallback (manual name entry)
-    googleBtn.addEventListener('click', () => {
-      const name = prompt('הזן את שמך (גוגל יופעל כשתגדיר Client ID):');
-      if (name) {
-        applyUser({ sub: 'guest_' + name.replace(/\s/g,'_'), name, given_name: name, picture: '' });
-      }
-    });
+googleBtn.addEventListener('click', openLogin);
+
+loginGo.addEventListener('click', () => {
+  const name = (loginNameInput.value || '').trim();
+  if (!name) {
+    loginNameInput.focus();
+    loginNameInput.style.borderColor = '#ef4444';
+    setTimeout(() => loginNameInput.style.borderColor = '', 1500);
     return;
   }
-  google.accounts.id.initialize({
-    client_id: GOOGLE_CLIENT_ID,
-    callback: handleGoogleCredential,
-    auto_select: true,
-    cancel_on_tap_outside: true
-  });
-  googleBtn.addEventListener('click', () => {
-    google.accounts.id.prompt();
-  });
-  // If user not logged in, show one-tap automatically
-  if (!currentUser) {
-    setTimeout(() => google.accounts.id.prompt(), 1500);
-  }
-}
+  const user = {
+    sub: 'user_' + name.toLowerCase().replace(/\s+/g, '_'),
+    name: name,
+    avatar: pickedAvatar
+  };
+  applyUser(user);
+  loginModal.classList.remove('show');
+});
 
-// Wait for Google SDK to load
-function waitForGoogle() {
-  if (window.google?.accounts?.id) {
-    initGoogleSignIn();
-  } else {
-    setTimeout(waitForGoogle, 200);
-  }
-}
-waitForGoogle();
+loginNameInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') loginGo.click();
+});
 
-// Profile click → menu
+loginClose.addEventListener('click', () => loginModal.classList.remove('show'));
+loginModal.addEventListener('click', (e) => {
+  if (e.target === loginModal) loginModal.classList.remove('show');
+});
+
+// Profile chip → menu
 profileChip.addEventListener('click', () => {
   profileMenu.hidden = !profileMenu.hidden;
 });
@@ -785,9 +787,6 @@ document.addEventListener('click', (e) => {
 
 document.getElementById('signOutBtn').addEventListener('click', () => {
   profileMenu.hidden = true;
-  if (window.google?.accounts?.id) {
-    google.accounts.id.disableAutoSelect();
-  }
   applyUser(null);
 });
 
