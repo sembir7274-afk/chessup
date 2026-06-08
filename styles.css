@@ -857,6 +857,9 @@ html, body {
    ====================================================== */
 .topbar-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 
+/* ===== Login + Google CSS removed — feature reverted ===== */
+.google-chip, .profile-chip, .profile-menu, .ios-hint, .login-modal, .login-card { display: none !important; }
+
 /* ===== Update banner ===== */
 .update-banner {
   position: fixed;

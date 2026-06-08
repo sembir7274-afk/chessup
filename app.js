@@ -4,19 +4,9 @@ const GLYPH = {
   k:'♚', q:'♛', r:'♜', b:'♝', n:'♞', p:'♟'
 };
 
-// ===== User & progress =====
-let currentUser = JSON.parse(localStorage.getItem('chessupUser') || 'null');
-let progress = loadProgress();
-
-function progressKey() {
-  return currentUser ? `chessupProgress_${currentUser.sub}` : 'chessupProgress';
-}
-function loadProgress() {
-  const key = currentUser ? `chessupProgress_${currentUser.sub}` : 'chessupProgress';
-  return JSON.parse(localStorage.getItem(key) || '{"completed":[]}');
-}
+let progress = JSON.parse(localStorage.getItem('chessupProgress') || '{"completed":[]}');
 function saveProgress() {
-  localStorage.setItem(progressKey(), JSON.stringify(progress));
+  localStorage.setItem('chessupProgress', JSON.stringify(progress));
 }
 let state = null;       // engine state for current lesson
 let currentLesson = null;
@@ -619,12 +609,11 @@ document.getElementById('unitContinueBtn').addEventListener('click', () => {
   }
 });
 
-// ============================================================
-// 📲 SMART INSTALL BUTTON — single click, auto-detect platform
-// ============================================================
+// ====== INSTALL TUTORIAL ======
 let deferredInstallPrompt = null;
-const installBtn = document.getElementById('installBtn');
-const iosHint = document.getElementById('iosHint');
+const installModal = document.getElementById('installModal');
+const installTabs = document.querySelectorAll('.install-tab');
+const installContents = document.querySelectorAll('.install-content');
 
 function detectPlatform() {
   const ua = navigator.userAgent || '';
@@ -633,165 +622,57 @@ function detectPlatform() {
   return 'desktop';
 }
 
-function isInstalled() {
-  return window.matchMedia('(display-mode: standalone)').matches ||
-         window.navigator.standalone === true;
+function setInstallTab(platform) {
+  installTabs.forEach(t => t.classList.toggle('active', t.dataset.platform === platform));
+  installContents.forEach(c => c.classList.toggle('active', c.dataset.platform === platform));
 }
 
-// Chrome / Edge / Android — capture native install prompt
+installTabs.forEach(tab => {
+  tab.addEventListener('click', () => setInstallTab(tab.dataset.platform));
+});
+
+document.getElementById('openInstallBtn').addEventListener('click', () => {
+  setInstallTab(detectPlatform());
+  installModal.classList.add('show');
+  const oneClick = document.getElementById('oneClickInstall');
+  if (deferredInstallPrompt) {
+    oneClick.hidden = false;
+  } else {
+    oneClick.hidden = true;
+  }
+});
+
+document.getElementById('closeInstallBtn').addEventListener('click', () => {
+  installModal.classList.remove('show');
+});
+
+installModal.addEventListener('click', (e) => {
+  if (e.target === installModal) installModal.classList.remove('show');
+});
+
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredInstallPrompt = e;
-  if (!isInstalled()) installBtn.hidden = false;
 });
 
-// iOS — no prompt API, but show button so user can see the hint
-const platform = detectPlatform();
-if (!isInstalled() && (platform === 'ios' || deferredInstallPrompt)) {
-  installBtn.hidden = false;
-}
-// Always show on iOS (where there's no beforeinstallprompt event)
-if (!isInstalled() && platform === 'ios') installBtn.hidden = false;
-
-installBtn.addEventListener('click', async () => {
-  if (deferredInstallPrompt) {
-    deferredInstallPrompt.prompt();
-    const result = await deferredInstallPrompt.userChoice;
-    if (result.outcome === 'accepted') {
-      installBtn.hidden = true;
-      setTimeout(() => alert('🎉 האפליקציה הותקנה!'), 300);
-    }
-    deferredInstallPrompt = null;
-  } else if (platform === 'ios') {
-    iosHint.classList.add('show');
-  } else {
-    alert('פתח את האפליקציה ב-Chrome או Edge כדי להתקין.');
+document.getElementById('oneClickInstall').addEventListener('click', async () => {
+  if (!deferredInstallPrompt) return;
+  deferredInstallPrompt.prompt();
+  const result = await deferredInstallPrompt.userChoice;
+  if (result.outcome === 'accepted') {
+    installModal.classList.remove('show');
+    setTimeout(() => alert('🎉 האפליקציה הותקנה בהצלחה!'), 300);
   }
+  deferredInstallPrompt = null;
+  document.getElementById('oneClickInstall').hidden = true;
 });
 
-document.getElementById('iosHintClose').addEventListener('click', () => {
-  iosHint.classList.remove('show');
-});
-iosHint.addEventListener('click', (e) => {
-  if (e.target === iosHint) iosHint.classList.remove('show');
-});
-
-window.addEventListener('appinstalled', () => {
-  installBtn.hidden = true;
-});
-
-// ============================================================
-// 🔐 LOGIN (simple, no external setup)
-// ============================================================
-const AVATARS = ['♞','♚','♛','♜','♝','♟','🦄','🚀','🎯','🔥','⚡','🏆'];
-
-const googleBtn = document.getElementById('googleBtn');
-const profileChip = document.getElementById('profileChip');
-const profilePic = document.getElementById('profilePic');
-const profileName = document.getElementById('profileName');
-const profileMenu = document.getElementById('profileMenu');
-
-const loginModal = document.getElementById('loginModal');
-const loginNameInput = document.getElementById('loginName');
-const avatarGrid = document.getElementById('avatarGrid');
-const loginGo = document.getElementById('loginGo');
-const loginClose = document.getElementById('loginClose');
-
-let pickedAvatar = AVATARS[0];
-
-function renderAvatarGrid() {
-  avatarGrid.innerHTML = '';
-  AVATARS.forEach((emoji, i) => {
-    const btn = document.createElement('button');
-    btn.className = 'avatar-option' + (emoji === pickedAvatar ? ' selected' : '');
-    btn.textContent = emoji;
-    btn.type = 'button';
-    btn.addEventListener('click', () => {
-      pickedAvatar = emoji;
-      renderAvatarGrid();
-    });
-    avatarGrid.appendChild(btn);
-  });
+if (window.matchMedia('(display-mode: standalone)').matches ||
+    window.navigator.standalone === true) {
+  const btn = document.getElementById('openInstallBtn');
+  if (btn) btn.style.display = 'none';
 }
-
-function applyUser(user) {
-  currentUser = user;
-  if (user) {
-    localStorage.setItem('chessupUser', JSON.stringify(user));
-    // Update profile chip — use emoji avatar
-    profilePic.style.display = 'none';
-    let av = profileChip.querySelector('.avatar-emoji');
-    if (!av) {
-      av = document.createElement('span');
-      av.className = 'avatar-emoji';
-      profileChip.insertBefore(av, profileChip.firstChild);
-    }
-    av.textContent = user.avatar || '♞';
-    profileName.textContent = user.name;
-    profileChip.hidden = false;
-    googleBtn.hidden = true;
-  } else {
-    localStorage.removeItem('chessupUser');
-    profileChip.hidden = true;
-    googleBtn.hidden = false;
-  }
-  progress = loadProgress();
-  renderMap();
-}
-
-function openLogin() {
-  pickedAvatar = AVATARS[0];
-  loginNameInput.value = '';
-  renderAvatarGrid();
-  loginModal.classList.add('show');
-  setTimeout(() => loginNameInput.focus(), 200);
-}
-
-googleBtn.addEventListener('click', openLogin);
-
-loginGo.addEventListener('click', () => {
-  const name = (loginNameInput.value || '').trim();
-  if (!name) {
-    loginNameInput.focus();
-    loginNameInput.style.borderColor = '#ef4444';
-    setTimeout(() => loginNameInput.style.borderColor = '', 1500);
-    return;
-  }
-  const user = {
-    sub: 'user_' + name.toLowerCase().replace(/\s+/g, '_'),
-    name: name,
-    avatar: pickedAvatar
-  };
-  applyUser(user);
-  loginModal.classList.remove('show');
-});
-
-loginNameInput.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') loginGo.click();
-});
-
-loginClose.addEventListener('click', () => loginModal.classList.remove('show'));
-loginModal.addEventListener('click', (e) => {
-  if (e.target === loginModal) loginModal.classList.remove('show');
-});
-
-// Profile chip → menu
-profileChip.addEventListener('click', () => {
-  profileMenu.hidden = !profileMenu.hidden;
-});
-document.addEventListener('click', (e) => {
-  if (!profileMenu.hidden && !profileChip.contains(e.target) && !profileMenu.contains(e.target)) {
-    profileMenu.hidden = true;
-  }
-});
-
-document.getElementById('signOutBtn').addEventListener('click', () => {
-  profileMenu.hidden = true;
-  applyUser(null);
-});
-
-// Init UI based on saved user
-if (currentUser) applyUser(currentUser);
 
 // ===== Init =====
 renderMap();
+setInstallTab(detectPlatform());

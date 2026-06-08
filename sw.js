@@ -1,4 +1,4 @@
-const CACHE_NAME = 'chessup-v6';
+const CACHE_NAME = 'chessup-v7';
 const ASSETS = [
   './',
   'index.html',

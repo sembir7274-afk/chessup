@@ -73,26 +73,6 @@
   <span>גרסה חדשה זמינה — מתעדכן...</span>
 </div>
 
-<!-- ===== Login Modal ===== -->
-<div id="loginModal" class="login-modal">
-  <div class="login-card">
-    <button class="login-close" id="loginClose" aria-label="סגור">✕</button>
-    <div class="login-hero-icon">
-      <div class="login-icon-bg"></div>
-      <span>♞</span>
-    </div>
-    <h2>היכנס ל-ChessUp</h2>
-    <p class="login-sub">בחר שם וחתימה - ההתקדמות תישמר לפי החשבון</p>
-
-    <label class="login-label">השם שלך</label>
-    <input type="text" id="loginName" class="login-input" placeholder="לדוגמה: דני" maxlength="20" autocomplete="off">
-
-    <label class="login-label">בחר אווטאר</label>
-    <div class="avatar-grid" id="avatarGrid"></div>
-
-    <button class="btn btn-primary btn-big login-go" id="loginGo">⚡ כניסה</button>
-  </div>
-</div>
 
 <header class="topbar">
   <div class="logo-wrap">
@@ -103,23 +83,10 @@
     </div>
   </div>
   <div class="topbar-right">
-    <button id="installBtn" class="install-chip" title="התקן את האפליקציה" hidden>
+    <button id="openInstallBtn" class="install-chip" title="התקן את האפליקציה">
       <span class="install-icon">📲</span>
       <span class="install-label">התקן</span>
     </button>
-    <button id="googleBtn" class="google-chip" title="התחבר עם גוגל">
-      <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true">
-        <path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.6l6.7-6.7C35.7 2.6 30.2 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.8 6C12.3 13.5 17.7 9.5 24 9.5z"/>
-        <path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.2-.4-4.8H24v9h12.7c-.5 2.9-2.2 5.4-4.7 7l7.6 5.9c4.5-4.1 7-10.2 7-17.1z"/>
-        <path fill="#FBBC05" d="M10.4 28.8c-.5-1.5-.8-3.1-.8-4.8s.3-3.3.8-4.8l-7.8-6C.9 16.2 0 20 0 24s.9 7.8 2.6 10.8l7.8-6z"/>
-        <path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.6-5.9c-2.1 1.4-4.8 2.2-8.3 2.2-6.3 0-11.7-4-13.6-9.7l-7.8 6C6.5 42.6 14.6 48 24 48z"/>
-      </svg>
-      <span id="googleBtnLabel">כניסה</span>
-    </button>
-    <div id="profileChip" class="profile-chip" hidden>
-      <img id="profilePic" alt="" referrerpolicy="no-referrer">
-      <span id="profileName"></span>
-    </div>
     <div class="streak-pill">
       <span class="streak-icon">🔥</span>
       <span id="streakCount">0</span>
@@ -128,25 +95,8 @@
   </div>
 </header>
 
-<!-- iOS install hint (only shown when install pressed on iOS) -->
-<div id="iosHint" class="ios-hint">
-  <div class="ios-hint-card">
-    <button class="ios-hint-close" id="iosHintClose">✕</button>
-    <div class="ios-hint-icon">📲</div>
-    <h3>להתקין ב-iPhone:</h3>
-    <p>1. לחץ על כפתור השיתוף <span class="ios-share-icon">⬆️</span> בתחתית Safari</p>
-    <p>2. בחר <strong>"Add to Home Screen"</strong></p>
-    <p>3. לחץ <strong>"Add"</strong> ✨</p>
-  </div>
-</div>
-
-<!-- Profile menu -->
-<div id="profileMenu" class="profile-menu" hidden>
-  <button id="signOutBtn">🚪 התנתק</button>
-</div>
-
-<!-- ============ (REMOVED) INSTALL TUTORIAL MODAL ============ -->
-<div id="installModal" class="install-modal" hidden style="display:none">
+<!-- ============ INSTALL TUTORIAL MODAL ============ -->
+<div id="installModal" class="install-modal">
   <div class="install-card">
     <button class="install-close" id="closeInstallBtn" aria-label="סגור">✕</button>
 
