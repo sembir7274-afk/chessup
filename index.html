@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#0a0e1a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ChessUp">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="format-detection" content="telephone=no">
+<title>ChessUp - למד שחמט בדרך מהנה</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon.png">
+
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('sw.js')
+            .then(reg => console.log('האפליקציה מוכנה להתקנה!', reg))
+            .catch(err => console.log('שגיאה ברישום האפליקציה:', err));
+        });
+      }
+    </script>
+     </head>
+<body>
+
+<div class="bg-mesh">
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+</div>
+
+<header class="topbar">
+  <div class="logo-wrap">
+    <div class="logo-icon">♞</div>
+    <div>
+      <div class="logo-text">ChessUp</div>
+      <div class="logo-sub">מאסטר השחמט שלך</div>
+    </div>
+  </div>
+  <div class="streak-pill">
+    <span class="streak-icon">🔥</span>
+    <span id="streakCount">0</span>
+    <span class="streak-label">שלבים</span>
+  </div>
+</header>
+
+<!-- ============ MAP SCREEN ============ -->
+<section id="mapScreen" class="screen active">
+  <div class="hero">
+    <h1 class="hero-title">המסע שלך לרמת מאסטר</h1>
+    <p class="hero-sub">למד שחמט שלב אחר שלב • לחץ על שלב פתוח כדי להתחיל</p>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressFill"></div>
+      <div class="progress-text"><span id="progressDone">0</span> / <span id="progressTotal">0</span></div>
+    </div>
+  </div>
+
+  <div class="units-container" id="unitsContainer"></div>
+</section>
+
+<!-- ============ LESSON SCREEN ============ -->
+<section id="lessonScreen" class="screen">
+  <div class="lesson-header">
+    <button class="back-btn" id="backBtn">
+      <span>→</span> חזרה למפה
+    </button>
+    <div class="lesson-progress">
+      <div class="lesson-progress-bar"><div id="lessonProgressFill"></div></div>
+      <span id="lessonStepNum"></span>
+    </div>
+  </div>
+
+  <div class="lesson-content">
+    <div class="lesson-board-side">
+      <div id="lessonBoard" class="lesson-board"></div>
+      <div class="board-hint" id="boardHint"></div>
+    </div>
+
+    <div class="lesson-info-side">
+      <div class="lesson-icon" id="lessonIcon">🎯</div>
+      <h2 class="lesson-title" id="lessonTitle"></h2>
+      <p class="lesson-desc" id="lessonDesc"></p>
+      <div class="lesson-goal" id="lessonGoal"></div>
+      <div class="lesson-feedback" id="lessonFeedback"></div>
+      <div class="lesson-actions">
+        <button id="hintBtn" class="btn btn-ghost">💡 רמז</button>
+        <button id="resetLessonBtn" class="btn btn-ghost">↺ נסה שוב</button>
+        <button id="nextBtn" class="btn btn-primary" disabled>הבא ←</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SUCCESS OVERLAY ============ -->
+<div id="successOverlay" class="success-overlay">
+  <div class="success-card">
+    <div class="confetti">
+      <span>✨</span><span>🎉</span><span>⭐</span><span>✨</span><span>🏆</span>
+    </div>
+    <div class="success-badge">✓</div>
+    <h2>מצוין!</h2>
+    <p id="successMsg">סיימת את השלב</p>
+    <button id="continueBtn" class="btn btn-primary btn-big">המשך</button>
+  </div>
+</div>
+
+<!-- ============ UNIT COMPLETE OVERLAY ============ -->
+<div id="unitOverlay" class="success-overlay">
+  <div class="success-card unit-card">
+    <div class="trophy">🏆</div>
+    <h2 id="unitDoneTitle">סיימת את היחידה!</h2>
+    <p>אתה מתקדם בצורה מדהימה</p>
+    <button id="unitContinueBtn" class="btn btn-primary btn-big">המשך למסע</button>
+  </div>
+</div>
+
+<script src="chess.js"></script>
+<script src="lessons.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

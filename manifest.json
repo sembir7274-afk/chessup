@@ -1,0 +1,22 @@
+{
+  "name": "ChessUp - למד שחמט",
+  "short_name": "ChessUp",
+  "description": "אפליקציית לימוד שחמט אינטראקטיבית - מהמתחיל למאסטר",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0a0e1a",
+  "theme_color": "#0a0e1a",
+  "lang": "he",
+  "dir": "rtl",
+  "categories": ["games", "education"],
+  "icons": [
+    {
+      "src": "icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
