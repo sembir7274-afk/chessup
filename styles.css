@@ -855,7 +855,137 @@ html, body {
 /* ======================================================
    📲 INSTALL TUTORIAL
    ====================================================== */
-.topbar-right { display: flex; align-items: center; gap: 10px; }
+.topbar-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+/* ===== Google sign-in button ===== */
+.google-chip {
+  display: flex; align-items: center; gap: 8px;
+  background: #fff;
+  color: #1a1a1a;
+  border: none;
+  padding: 9px 16px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  font-family: inherit;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.google-chip:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,0.35); }
+.google-chip svg { display: block; }
+
+/* ===== Profile chip (when logged in) ===== */
+.profile-chip {
+  display: flex; align-items: center; gap: 8px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.12);
+  padding: 5px 14px 5px 5px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--text);
+  transition: all 0.2s;
+}
+.profile-chip:hover { background: rgba(255,255,255,0.1); transform: translateY(-1px); }
+.profile-chip img {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 0 0 2px rgba(124,92,255,0.5);
+}
+
+.profile-menu {
+  position: fixed;
+  top: 70px;
+  left: 16px;
+  background: var(--panel, #1a2030);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 14px;
+  padding: 8px;
+  box-shadow: 0 12px 32px rgba(0,0,0,0.5);
+  z-index: 100;
+  animation: menuPop 0.2s ease-out;
+}
+@keyframes menuPop { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+.profile-menu button {
+  background: transparent;
+  color: var(--text);
+  border: none;
+  padding: 10px 16px;
+  width: 100%;
+  text-align: right;
+  border-radius: 10px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 14px;
+}
+.profile-menu button:hover { background: rgba(255,255,255,0.08); }
+
+/* ===== iOS hint popup ===== */
+.ios-hint {
+  position: fixed;
+  inset: 0;
+  background: rgba(5,8,16,0.85);
+  backdrop-filter: blur(12px);
+  z-index: 1000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.ios-hint.show { display: flex; animation: modalFade 0.3s; }
+.ios-hint-card {
+  background: linear-gradient(160deg, #161c30, #0e1224);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 22px;
+  padding: 32px 26px;
+  max-width: 380px;
+  width: 100%;
+  text-align: right;
+  position: relative;
+  animation: cardSlide 0.4s cubic-bezier(0.2, 0.9, 0.3, 1.4);
+}
+.ios-hint-close {
+  position: absolute;
+  top: 14px; left: 14px;
+  background: rgba(255,255,255,0.08);
+  border: none;
+  color: var(--text);
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+.ios-hint-icon {
+  font-size: 56px;
+  text-align: center;
+  margin-bottom: 8px;
+  animation: float-icon 2s ease-in-out infinite;
+}
+.ios-hint h3 {
+  text-align: center;
+  background: linear-gradient(135deg, #fff, var(--primary-2));
+  -webkit-background-clip: text; background-clip: text;
+  color: transparent;
+  font-size: 22px;
+  margin-bottom: 16px;
+}
+.ios-hint p { color: var(--text); margin: 10px 0; font-size: 14px; line-height: 1.6; }
+.ios-hint strong { color: var(--accent); }
+.ios-share-icon {
+  display: inline-block;
+  background: rgba(0,122,255,0.2);
+  padding: 2px 8px;
+  border-radius: 6px;
+  margin: 0 4px;
+}
+
+@media (max-width: 600px) {
+  .google-chip { padding: 7px 12px; font-size: 12px; }
+  .profile-chip { padding: 3px 12px 3px 3px; font-size: 12px; }
+  .profile-chip img { width: 26px; height: 26px; }
+}
 
 .install-chip {
   display: flex; align-items: center; gap: 8px;

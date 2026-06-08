@@ -4,7 +4,20 @@ const GLYPH = {
   k:'♚', q:'♛', r:'♜', b:'♝', n:'♞', p:'♟'
 };
 
-let progress = JSON.parse(localStorage.getItem('chessupProgress') || '{"completed":[]}');
+// ===== User & progress =====
+let currentUser = JSON.parse(localStorage.getItem('chessupUser') || 'null');
+let progress = loadProgress();
+
+function progressKey() {
+  return currentUser ? `chessupProgress_${currentUser.sub}` : 'chessupProgress';
+}
+function loadProgress() {
+  const key = currentUser ? `chessupProgress_${currentUser.sub}` : 'chessupProgress';
+  return JSON.parse(localStorage.getItem(key) || '{"completed":[]}');
+}
+function saveProgress() {
+  localStorage.setItem(progressKey(), JSON.stringify(progress));
+}
 let state = null;       // engine state for current lesson
 let currentLesson = null;
 let selected = null;
@@ -500,7 +513,7 @@ function lessonComplete() {
   if (!progress.completed.includes(currentLesson.globalIdx)) {
     progress.completed.push(currentLesson.globalIdx);
     progress.completed.sort((a,b) => a-b);
-    localStorage.setItem('chessupProgress', JSON.stringify(progress));
+    saveProgress();
   }
 
   // Show success overlay
@@ -526,7 +539,7 @@ document.getElementById('nextBtn').addEventListener('click', () => {
   if (!lessonDone) return;
   if (!progress.completed.includes(currentLesson.globalIdx)) {
     progress.completed.push(currentLesson.globalIdx);
-    localStorage.setItem('chessupProgress', JSON.stringify(progress));
+    saveProgress();
   }
   const nextIdx = currentLesson.globalIdx + 1;
   if (nextIdx < FLAT_LESSONS.length) {
@@ -606,11 +619,12 @@ document.getElementById('unitContinueBtn').addEventListener('click', () => {
   }
 });
 
-// ====== INSTALL TUTORIAL ======
+// ============================================================
+// 📲 SMART INSTALL BUTTON — single click, auto-detect platform
+// ============================================================
 let deferredInstallPrompt = null;
-const installModal = document.getElementById('installModal');
-const installTabs = document.querySelectorAll('.install-tab');
-const installContents = document.querySelectorAll('.install-content');
+const installBtn = document.getElementById('installBtn');
+const iosHint = document.getElementById('iosHint');
 
 function detectPlatform() {
   const ua = navigator.userAgent || '';
@@ -619,63 +633,166 @@ function detectPlatform() {
   return 'desktop';
 }
 
-function setInstallTab(platform) {
-  installTabs.forEach(t => t.classList.toggle('active', t.dataset.platform === platform));
-  installContents.forEach(c => c.classList.toggle('active', c.dataset.platform === platform));
+function isInstalled() {
+  return window.matchMedia('(display-mode: standalone)').matches ||
+         window.navigator.standalone === true;
 }
 
-installTabs.forEach(tab => {
-  tab.addEventListener('click', () => setInstallTab(tab.dataset.platform));
-});
-
-document.getElementById('openInstallBtn').addEventListener('click', () => {
-  setInstallTab(detectPlatform());
-  installModal.classList.add('show');
-  // If browser supports direct install prompt, show the one-click button
-  const oneClick = document.getElementById('oneClickInstall');
-  if (deferredInstallPrompt) {
-    oneClick.hidden = false;
-  } else {
-    oneClick.hidden = true;
-  }
-});
-
-document.getElementById('closeInstallBtn').addEventListener('click', () => {
-  installModal.classList.remove('show');
-});
-
-installModal.addEventListener('click', (e) => {
-  if (e.target === installModal) installModal.classList.remove('show');
-});
-
-// PWA install prompt (Chrome/Edge/Android)
+// Chrome / Edge / Android — capture native install prompt
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredInstallPrompt = e;
-  // Add a subtle pulse on the install chip
-  const chip = document.getElementById('openInstallBtn');
-  if (chip) chip.classList.add('pulse-now');
+  if (!isInstalled()) installBtn.hidden = false;
 });
 
-document.getElementById('oneClickInstall').addEventListener('click', async () => {
-  if (!deferredInstallPrompt) return;
-  deferredInstallPrompt.prompt();
-  const result = await deferredInstallPrompt.userChoice;
-  if (result.outcome === 'accepted') {
-    installModal.classList.remove('show');
-    setTimeout(() => alert('🎉 האפליקציה הותקנה בהצלחה!'), 300);
-  }
-  deferredInstallPrompt = null;
-  document.getElementById('oneClickInstall').hidden = true;
-});
-
-// Hide install button if already installed (PWA mode)
-if (window.matchMedia('(display-mode: standalone)').matches ||
-    window.navigator.standalone === true) {
-  const btn = document.getElementById('openInstallBtn');
-  if (btn) btn.style.display = 'none';
+// iOS — no prompt API, but show button so user can see the hint
+const platform = detectPlatform();
+if (!isInstalled() && (platform === 'ios' || deferredInstallPrompt)) {
+  installBtn.hidden = false;
 }
+// Always show on iOS (where there's no beforeinstallprompt event)
+if (!isInstalled() && platform === 'ios') installBtn.hidden = false;
+
+installBtn.addEventListener('click', async () => {
+  if (deferredInstallPrompt) {
+    deferredInstallPrompt.prompt();
+    const result = await deferredInstallPrompt.userChoice;
+    if (result.outcome === 'accepted') {
+      installBtn.hidden = true;
+      setTimeout(() => alert('🎉 האפליקציה הותקנה!'), 300);
+    }
+    deferredInstallPrompt = null;
+  } else if (platform === 'ios') {
+    iosHint.classList.add('show');
+  } else {
+    alert('פתח את האפליקציה ב-Chrome או Edge כדי להתקין.');
+  }
+});
+
+document.getElementById('iosHintClose').addEventListener('click', () => {
+  iosHint.classList.remove('show');
+});
+iosHint.addEventListener('click', (e) => {
+  if (e.target === iosHint) iosHint.classList.remove('show');
+});
+
+window.addEventListener('appinstalled', () => {
+  installBtn.hidden = true;
+});
+
+// ============================================================
+// 🔐 GOOGLE SIGN-IN
+// ============================================================
+// To enable Google Sign-In:
+// 1. Go to https://console.cloud.google.com/apis/credentials
+// 2. Create OAuth 2.0 Client ID (type: Web application)
+// 3. Add your domain to "Authorized JavaScript origins"
+//    (e.g. https://sembir7274-afk.github.io and https://f7058f2e523e3f.lhr.life)
+// 4. Paste the client ID here:
+const GOOGLE_CLIENT_ID = '__PASTE_YOUR_GOOGLE_CLIENT_ID__.apps.googleusercontent.com';
+
+const googleBtn = document.getElementById('googleBtn');
+const profileChip = document.getElementById('profileChip');
+const profilePic = document.getElementById('profilePic');
+const profileName = document.getElementById('profileName');
+const profileMenu = document.getElementById('profileMenu');
+
+function decodeJWT(token) {
+  try {
+    const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+    const json = decodeURIComponent(atob(base64).split('').map(c =>
+      '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+    return JSON.parse(json);
+  } catch (e) { return null; }
+}
+
+function applyUser(user) {
+  currentUser = user;
+  if (user) {
+    localStorage.setItem('chessupUser', JSON.stringify(user));
+    profilePic.src = user.picture || '';
+    profileName.textContent = (user.given_name || user.name || '').split(' ')[0];
+    profileChip.hidden = false;
+    googleBtn.hidden = true;
+  } else {
+    localStorage.removeItem('chessupUser');
+    profileChip.hidden = true;
+    googleBtn.hidden = false;
+  }
+  // Reload progress for this user (or guest)
+  progress = loadProgress();
+  renderMap();
+}
+
+function handleGoogleCredential(response) {
+  const payload = decodeJWT(response.credential);
+  if (!payload) return;
+  applyUser({
+    sub: payload.sub,
+    name: payload.name,
+    given_name: payload.given_name,
+    email: payload.email,
+    picture: payload.picture
+  });
+}
+
+function initGoogleSignIn() {
+  if (!window.google?.accounts?.id) return;
+  if (GOOGLE_CLIENT_ID.startsWith('__PASTE')) {
+    // Not configured yet — show prompt-based fallback (manual name entry)
+    googleBtn.addEventListener('click', () => {
+      const name = prompt('הזן את שמך (גוגל יופעל כשתגדיר Client ID):');
+      if (name) {
+        applyUser({ sub: 'guest_' + name.replace(/\s/g,'_'), name, given_name: name, picture: '' });
+      }
+    });
+    return;
+  }
+  google.accounts.id.initialize({
+    client_id: GOOGLE_CLIENT_ID,
+    callback: handleGoogleCredential,
+    auto_select: true,
+    cancel_on_tap_outside: true
+  });
+  googleBtn.addEventListener('click', () => {
+    google.accounts.id.prompt();
+  });
+  // If user not logged in, show one-tap automatically
+  if (!currentUser) {
+    setTimeout(() => google.accounts.id.prompt(), 1500);
+  }
+}
+
+// Wait for Google SDK to load
+function waitForGoogle() {
+  if (window.google?.accounts?.id) {
+    initGoogleSignIn();
+  } else {
+    setTimeout(waitForGoogle, 200);
+  }
+}
+waitForGoogle();
+
+// Profile click → menu
+profileChip.addEventListener('click', () => {
+  profileMenu.hidden = !profileMenu.hidden;
+});
+document.addEventListener('click', (e) => {
+  if (!profileMenu.hidden && !profileChip.contains(e.target) && !profileMenu.contains(e.target)) {
+    profileMenu.hidden = true;
+  }
+});
+
+document.getElementById('signOutBtn').addEventListener('click', () => {
+  profileMenu.hidden = true;
+  if (window.google?.accounts?.id) {
+    google.accounts.id.disableAutoSelect();
+  }
+  applyUser(null);
+});
+
+// Init UI based on saved user
+if (currentUser) applyUser(currentUser);
 
 // ===== Init =====
 renderMap();
-setInstallTab(detectPlatform());
