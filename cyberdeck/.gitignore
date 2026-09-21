@@ -1,0 +1,13 @@
+node_modules
+dist
+dist-ssr
+.vite
+*.local
+.DS_Store
+npm-debug.log*
+
+# Drop your own Higgsfield-generated media here — it is intentionally not committed.
+public/assets/background.mp4
+public/assets/background.webm
+public/assets/background.jpg
+public/assets/background.png

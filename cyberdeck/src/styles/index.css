@@ -1,0 +1,237 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --deck-accent: 34 228 255;
+    --deck-accent-alt: 255 45 155;
+    --deck-ui-opacity: 1;
+    color-scheme: dark;
+  }
+
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    @apply bg-deck-void font-sans text-slate-200 antialiased;
+    overflow: hidden;
+    overscroll-behavior: none;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Reduced-motion users still get the interface, minus the theatrics. */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+    }
+  }
+
+  ::-webkit-scrollbar {
+    width: 7px;
+    height: 7px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: rgba(8, 14, 26, 0.6);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, rgba(34, 228, 255, 0.55), rgba(255, 45, 155, 0.45));
+    border-radius: 999px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, rgba(34, 228, 255, 0.9), rgba(255, 45, 155, 0.7));
+  }
+
+  ::selection {
+    background: rgba(34, 228, 255, 0.3);
+    color: #e9fbff;
+  }
+
+  :focus-visible {
+    outline: 1px solid rgba(34, 228, 255, 0.85);
+    outline-offset: 2px;
+  }
+
+  input[type='range'] {
+    @apply h-1 w-full cursor-pointer appearance-none rounded-full bg-deck-line;
+  }
+
+  input[type='range']::-webkit-slider-thumb {
+    @apply h-3 w-3 appearance-none rounded-full bg-neon-cyan;
+    box-shadow: 0 0 8px rgba(34, 228, 255, 0.9);
+  }
+
+  input[type='range']::-moz-range-thumb {
+    @apply h-3 w-3 rounded-full border-0 bg-neon-cyan;
+    box-shadow: 0 0 8px rgba(34, 228, 255, 0.9);
+  }
+}
+
+@layer components {
+  /* ---- Glassmorphism shell ---------------------------------------- */
+  .glass-panel {
+    @apply relative overflow-hidden rounded-xl border border-cyan-500/30 bg-slate-950/70 shadow-panel backdrop-blur-xl;
+  }
+
+  .glass-panel-pink {
+    @apply border-pink-500/30;
+  }
+
+  .glass-inset {
+    @apply rounded-lg border border-cyan-500/15 bg-slate-950/50 backdrop-blur-md;
+  }
+
+  /* Diagonal light sweep that lives on the panel chrome. */
+  .hud-sweep::after {
+    content: '';
+    @apply pointer-events-none absolute inset-y-0 w-1/3 bg-hud-sweep opacity-0;
+    animation: sweep-x 4.5s ease-in-out infinite;
+  }
+
+  .hud-sweep:hover::after {
+    @apply opacity-100;
+  }
+
+  /* ---- Scanlines --------------------------------------------------- */
+  .scanlines::before {
+    content: '';
+    @apply pointer-events-none absolute inset-0 z-10 opacity-[0.16];
+    background: repeating-linear-gradient(
+      to bottom,
+      transparent 0px,
+      transparent 2px,
+      rgba(0, 0, 0, 0.55) 3px,
+      rgba(0, 0, 0, 0.55) 4px
+    );
+  }
+
+  .scan-beam::after {
+    content: '';
+    @apply pointer-events-none absolute inset-x-0 z-10 h-24;
+    background: linear-gradient(to bottom, transparent, rgba(34, 228, 255, 0.09), transparent);
+    animation: scanline 7s linear infinite;
+  }
+
+  /* ---- Neon typography --------------------------------------------- */
+  .text-neon {
+    text-shadow: 0 0 4px rgba(34, 228, 255, 0.85), 0 0 14px rgba(34, 228, 255, 0.4);
+  }
+
+  .text-neon-pink {
+    text-shadow: 0 0 4px rgba(255, 45, 155, 0.85), 0 0 14px rgba(255, 45, 155, 0.4);
+  }
+
+  .text-neon-amber {
+    text-shadow: 0 0 4px rgba(255, 182, 39, 0.85), 0 0 14px rgba(255, 182, 39, 0.4);
+  }
+
+  .text-neon-lime {
+    text-shadow: 0 0 4px rgba(157, 255, 61, 0.85), 0 0 14px rgba(157, 255, 61, 0.4);
+  }
+
+  .text-neon-red {
+    text-shadow: 0 0 4px rgba(255, 61, 90, 0.9), 0 0 14px rgba(255, 61, 90, 0.45);
+  }
+
+  .label-hud {
+    @apply font-mono text-[10px] uppercase tracking-[0.25em] text-cyan-300/60;
+  }
+
+  /* ---- Controls ------------------------------------------------------ */
+  .btn-hud {
+    @apply relative inline-flex items-center justify-center gap-2 rounded-md border border-cyan-500/30
+           bg-cyan-500/5 px-3 py-1.5 font-mono text-[11px] uppercase tracking-[0.18em]
+           text-cyan-200 transition-all duration-200
+           hover:border-cyan-400/80 hover:bg-cyan-500/15 hover:text-cyan-100 hover:shadow-glow-cyan
+           focus-visible:border-cyan-300 active:translate-y-px
+           disabled:cursor-not-allowed disabled:opacity-35 disabled:hover:shadow-none;
+  }
+
+  .btn-hud-pink {
+    @apply border-pink-500/30 bg-pink-500/5 text-pink-200
+           hover:border-pink-400/80 hover:bg-pink-500/15 hover:text-pink-100 hover:shadow-glow-pink;
+  }
+
+  .btn-hud-danger {
+    @apply border-red-500/30 bg-red-500/5 text-red-300
+           hover:border-red-400/80 hover:bg-red-500/15 hover:text-red-100 hover:shadow-glow-red;
+  }
+
+  .btn-hud-active {
+    @apply border-cyan-400 bg-cyan-500/20 text-cyan-50 shadow-glow-cyan;
+  }
+
+  .btn-icon {
+    @apply inline-flex h-7 w-7 items-center justify-center rounded border border-transparent
+           text-slate-400 transition-all duration-200
+           hover:border-cyan-400/50 hover:bg-cyan-500/10 hover:text-cyan-200 hover:shadow-glow-cyan;
+  }
+
+  .input-hud {
+    @apply w-full rounded-md border border-cyan-500/25 bg-slate-950/60 px-3 py-2 font-mono text-sm
+           text-cyan-50 placeholder:text-slate-600 transition-all duration-200
+           focus:border-cyan-400/80 focus:bg-slate-950/80 focus:shadow-glow-cyan focus:outline-none;
+  }
+
+  .chip {
+    @apply inline-flex items-center gap-1 rounded-sm border px-1.5 py-0.5 font-mono text-[9px]
+           uppercase tracking-[0.15em];
+  }
+
+  /* Corner brackets — the "targeting reticle" frame on HUD panels. */
+  .bracketed {
+    @apply relative;
+  }
+
+  .bracketed::before,
+  .bracketed::after {
+    content: '';
+    @apply pointer-events-none absolute h-3 w-3 border-cyan-400/70;
+  }
+
+  .bracketed::before {
+    @apply left-0 top-0 border-l border-t;
+  }
+
+  .bracketed::after {
+    @apply bottom-0 right-0 border-b border-r;
+  }
+
+  .noise-overlay {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.42'/%3E%3C/svg%3E");
+  }
+}
+
+@layer utilities {
+  .text-shadow-none {
+    text-shadow: none;
+  }
+
+  .drag-none {
+    -webkit-user-drag: none;
+    user-select: none;
+  }
+
+  .mask-fade-b {
+    mask-image: linear-gradient(to bottom, black 78%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, black 78%, transparent 100%);
+  }
+
+  .preserve-3d {
+    transform-style: preserve-3d;
+  }
+}
